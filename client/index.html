@@ -1,0 +1,145 @@
+<html>
+<head>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/client/css.css">
+</head>
+<body>
+  <h1 id="turnstatus">TURN</h1>
+<div id="mid">
+  <div id="pot">
+    <img id="backcard" src="/client/img/BACK.png"/>
+  </div>
+  <div id="game">
+    <img id="gamepile" src="/client/img/EMPTY.png"/>
+  </div>
+</div>
+<div id="hand"></div>
+
+<button onclick="Readyup()" id="readyButton">Ready</button>
+<button onclick="Status()" id="statusButton">Status</button>
+
+
+<div id="boerkeuze">
+  <div id="middenkeuze">
+    <form>
+      <input class="radio" type="radio" name="boer"> Harten</input><br>
+      <input class="radio" type="radio" name="boer"> Ruiten</input><br>
+      <input class="radio" type="radio" name="boer"> Schoppen</input><br>
+      <input class="radio" type="radio" name="boer"> Klaver</input><br>
+      <input type="submit" value="Maak keuze"></input>
+    </form>
+  </div>
+</div>
+
+<script>
+  var socket = io();
+  turn = 0;
+
+  socket.on('connect', function() {
+    var sessionid = socket.id;
+    localStorage.setItem("sessionid", sessionid);
+  })
+
+
+
+  socket.on('userdisconnect', function(){
+    alert("Er is een speler gedisconnect. refresh de server");
+  });
+  socket.on('hand', function(hand){
+    console.log("kaarten gekregen");
+    for(var i=0; i < hand.length; i++){
+      var node = document.getElementById("hand");
+      var subnode = document.createElement("a");
+      subnode.setAttribute("class", "card");
+      subnode.setAttribute("name", i);
+      subnode.setAttribute("onclick", "PickCard(getAttribute('name'))")
+      var textnode = document.createTextNode(hand[i]);
+      var image = document.createElement("img");
+      image.setAttribute("src", "/client/img/" + hand[i] + ".png");
+      subnode.appendChild(image);
+      node.appendChild(subnode);
+      //node.appendChild(document.createElement("br"));
+    }
+  });
+
+
+  socket.on("topstackchange", function(data){
+    console.log("topstackchange");
+    var stapel = document.getElementById("gamepile");
+    stapel.setAttribute("src", "/client/img/" + data.topstapel + ".png");
+  });
+
+  socket.on('yourturn', function(){
+    console.log("RECEIVED YOURTURN");
+    var turnstatus= document.getElementById("turnstatus");
+    turnstatus.innerHTML = "Je bent aan de beurt";
+    turn = 1;
+    localStorage.setItem('turn', '1');
+    console.log(localStorage.getItem('turn'));
+    console.log("==========================");
+
+  });
+
+
+
+
+  socket.on('wrong', function(){
+    var turnstatus= document.getElementById("turnstatus");
+    if(turnstatus.innerHTML = "Je bent aan de beurt"){
+    setTimeout(function(){
+      turnstatus.innerHTML = "Je bent aan de beurt";
+    }, 2000);
+    }
+    else{
+      setTimeout(function(){
+        turnstatus.innerHTML = "Wacht op je beurt";
+      }, 2000);
+    }
+    turnstatus.innerHTML = "Deze kaart kan niet op de stapel";
+
+  });
+
+  socket.on('Boerchoice', function(){
+    document.getElementById("boerkeuze").style.display = "block";
+    document.getElementById("boerkeuze").style.zIndex = "10";
+  });
+
+  socket.on('notyou', function(turn){
+    var turnstatus = document.getElementById("turnstatus");
+    turnstatus.innerHTML= "Wacht op je beurt";
+    turn = 0;
+    localStorage.setItem('turn', '0');
+    console.log(localStorage.getItem('turn'));
+  });
+
+
+  PickCard = function(Cname){
+    var turn = localStorage.getItem('turn')
+    console.log(turn);
+    if(turn == '1'){
+      console.log("card selected : " + Cname);
+      socket.emit('selectedcard', {
+        card: Cname
+      });
+    }
+    else{
+      console.log("Het is niet jouw beurt!");
+    }
+  };
+
+  Readyup = function(){
+    socket.emit('ready', {
+      status: 1
+    });
+  };
+  Status = function(){
+    console.log('statuscall');
+    socket.emit('status', {
+      status: "call"
+    });
+  };
+
+</script>
+</body>
+</html>
