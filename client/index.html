@@ -18,6 +18,7 @@
 
 <button onclick="Readyup()" id="readyButton">Ready</button>
 <button onclick="Status()" id="statusButton">Status</button>
+<button onclick="PassTurn()" id="passButton">Klaar</button>
 
 
 <div id="boerkeuze">
@@ -153,6 +154,27 @@
       status: "call"
     });
   };
+
+  PassTurn = function(){
+    console.log("passturn");
+    if(gekocht == true){
+      socket.emit('passturn');
+    }
+    else{
+      var turnstatus= document.getElementById("turnstatus");
+      if(localStorage.getItem("turn") == '1'){
+      setTimeout(function(){
+        turnstatus.innerHTML = "Je bent aan de beurt";
+      }, 2000);
+      }
+      else{
+        setTimeout(function(){
+          turnstatus.innerHTML = "Wacht op je beurt";
+        }, 2000);
+      }
+      turnstatus.innerHTML = "Je moet eerst een kaart van de pot pakken";
+    }
+  }
 
 </script>
 </body>
