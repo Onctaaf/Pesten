@@ -57,6 +57,7 @@ var io = require('socket.io') (serv, {});
 
 //als er een nieuwe speler joint wordt deze functie aangeroepen.
 io.on('connect', function(socket){
+localStorage.setItem("currentturn", "undefined");
   var id = socket.id;
   var player = Player(socket.id);
   console.log("socket:   " , socket.id);
@@ -85,6 +86,7 @@ io.on('connect', function(socket){
   socket.on('disconnect', function(){
     //delete SOCKET_LIST[socket.id];
     //delete PLAYER_LIST[socket.id];
+    localStorage.setItem("currentturn", "undefined");
     for(var i in SOCKET_LIST){
         var socket = SOCKET_LIST[i];
         socket.emit('userdisconnect');
@@ -118,13 +120,25 @@ io.on('connect', function(socket){
     console.log("SOCKET: ", );
     console.log("SOCKET: ", SOCKET_LIST[id].id);
     var infonext = dealnodeal(GAME_LIST[1].topstapel, PLAYER_LIST[id].hand[data.card]);
+    //[value, next, boer]
     if(infonext[2] == true){
       io.emit('Boerchoice');
     }
     if(infonext[0] == true && infonext[1] == true){
       io.emit('right');
+      if(localStorage.getItem("currentturn") == "undefined"){
+        console.log("ja localStorage is dus null");
+        console.log(PLAYING_LIST[1]);
+        currentturn = PLAYING_LIST[1];
+      }
+      else{
+        console.log("nee localStorage is dus niet null");
+        console.log(localStorage.getItem("currentturn"))
+        currentturn = localStorage.getItem("currentturn");
+      }
       console.log("CURRENT TURN:   " + currentturn);
       currentturn = nextplayer(currentturn);
+      localStorage.setItem("currentturn",  String(currentturn));
     }
     else if (infonext[0] == true && infonext[1] == false) {
       goAgain();
@@ -138,6 +152,18 @@ io.on('connect', function(socket){
       console.log(legstapel)
       GAME_LIST[1].topstapel = PLAYER_LIST[id].hand[data.card];
       GAME_LIST[1].legstapel = legstapel;
+
+      console.log(PLAYER_LIST[id].hand)
+      console.log(data.card)
+      dearray = PLAYER_LIST[id].hand
+      dearray.splice(data.card, 1);
+      console.log(id)
+      PLAYER_LIST[id].hand = dearray;
+      console.log(dearray)
+      console.log(data.card)
+      SOCKET_LIST[id].emit("handchange", {
+        card: data.card
+      })
     };
     console.log("topstackchange     " + GAME_LIST[1].topstapel);
     //for(var i in SOCKET_LIST){
@@ -281,19 +307,22 @@ StartGame = function(){
 
 
 turnchanged = function(){
-
-    console.log(PLAYER_LIST);
+  console.log("hier ff kieke")
   for(var i in PLAYING_LIST){
-    var player = PLAYER_LIST[i];
+    console.log(i);
+  }
+  for(var i in PLAYING_LIST){
+    var player = PLAYER_LIST[PLAYING_LIST[i]];
     if(player.go == 1){
-      console.log("EMITTING YOURTURN");
-      io.emit("yourturn");
+      console.log("EMITTING YOURTURN:   ", i);
+        console.log(player);
+      SOCKET_LIST[PLAYING_LIST[i]].emit("yourturn");
     }
     else{
-      console.log("NOTYOURTURN");
+      console.log("NOTYOURTURN:   ", i);
       console.log(i);
       //SOCKET_LIST[i].emit("notyou");
-      SOCKET_LIST[i].emit("notyou")
+      SOCKET_LIST[PLAYING_LIST[i]].emit("notyou")
       //SOCKET_LIST[i].emit("notyou");
     }
   }
@@ -301,10 +330,20 @@ turnchanged = function(){
 
 nextplayer = function(currentturn){
 
-  Object.prototype.getKeyByValue = function( value ) {
-      for( var prop in this ) {
-          if( this.hasOwnProperty( prop ) ) {
-               if( this[ prop ] == value ){
+  // Object.prototype.getKeyByValue = function( value ) {
+  //     for( var prop in this ) {
+  //         if( this.hasOwnProperty( prop ) ) {
+  //              if( this[ prop ] == value ){
+  //                  return prop;
+  //                }
+  //         }
+  //     }
+  // }
+
+  getKeyByValue = function( value , object) {
+      for( var prop in object ) {
+          if( object.hasOwnProperty( prop ) ) {
+               if( object[ prop ] == value ){
                    return prop;
                  }
           }
@@ -312,16 +351,25 @@ nextplayer = function(currentturn){
   }
 
   var deelnemers = Object.keys(PLAYER_LIST).length;
+  console.log("--------------------")
+  console.log("--------------------")
+  console.log("--------------------")
+  console.log(currentturn)
+  console.log(PLAYING_LIST[deelnemers])
+  console.log("--------------------")
+  console.log("--------------------")
+  console.log("--------------------")
   if(currentturn != PLAYING_LIST[deelnemers]){
     for(i in PLAYER_LIST){
-      if(PLAYING_LIST[parseInt(PLAYING_LIST.getKeyByValue( currentturn)) + 1] == i){
+      // if(PLAYING_LIST[parseInt(PLAYING_LIST.getKeyByValue( currentturn)) + 1] == i){
+         if(PLAYING_LIST[parseInt(getKeyByValue( currentturn, PLAYING_LIST)) + 1] == i){
         PLAYER_LIST[i].go = 1;
       }
       else {
         PLAYER_LIST[i].go = 0;
       }
     }
-    currentturn = PLAYING_LIST[parseInt(PLAYING_LIST.getKeyByValue( currentturn)) + 1];
+    currentturn = PLAYING_LIST[parseInt(getKeyByValue( currentturn, PLAYING_LIST)) + 1];
   }
   else{
     for(i in PLAYER_LIST){

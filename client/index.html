@@ -53,6 +53,7 @@
       var subnode = document.createElement("a");
       subnode.setAttribute("class", "card");
       subnode.setAttribute("name", i);
+      subnode.setAttribute("id", i);
       subnode.setAttribute("onclick", "PickCard(getAttribute('name'))")
       var textnode = document.createTextNode(hand[i]);
       var image = document.createElement("img");
@@ -63,11 +64,22 @@
     }
   });
 
+  socket.on("handchange", function(data){
+    var hand = document.getElementById("hand");
+    hand.removeChild(document.getElementById(data.card))
+    var handlength = hand.childElementCount;
+    for(var i=0; i < handlength; i++){
+      thiscard = hand.children[i];
+      thiscard.setAttribute("name", i);
+      thiscard.setAttribute("id", i);
+    }
+  })
 
   socket.on("topstackchange", function(data){
     console.log("topstackchange");
     var stapel = document.getElementById("gamepile");
     stapel.setAttribute("src", "/client/img/" + data.topstapel + ".png");
+
   });
 
   socket.on('yourturn', function(){
@@ -86,7 +98,7 @@
 
   socket.on('wrong', function(){
     var turnstatus= document.getElementById("turnstatus");
-    if(turnstatus.innerHTML = "Je bent aan de beurt"){
+    if(localStorage.getItem("turn") == '1'){
     setTimeout(function(){
       turnstatus.innerHTML = "Je bent aan de beurt";
     }, 2000);
@@ -106,12 +118,14 @@
   });
 
   socket.on('notyou', function(turn){
+    console.log("NOTYOU")
     var turnstatus = document.getElementById("turnstatus");
     turnstatus.innerHTML= "Wacht op je beurt";
     turn = 0;
     localStorage.setItem('turn', '0');
     console.log(localStorage.getItem('turn'));
   });
+
 
 
   PickCard = function(Cname){
