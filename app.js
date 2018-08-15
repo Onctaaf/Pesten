@@ -1,6 +1,6 @@
 //
-//FORCETAKE(x)
-//GOAGAIN()
+//
+//8 wacht
 //
 //gamestapel bouwen
 //endgame logica
@@ -48,7 +48,8 @@ var Game = function(){
     pot: [],
     legstapel: [],
     topstapel: "EMPTY",
-    currentturn: null
+    currentturn: null,
+    forcetake: 0
   }
   return self;
 }
@@ -92,7 +93,6 @@ localStorage.setItem("currentturn", "undefined");
         socket.emit('userdisconnect');
     }
 
-      console.log(PLAYER_LIST);
   });
 
   socket.on('ready', function(data){
@@ -101,12 +101,52 @@ localStorage.setItem("currentturn", "undefined");
       var pile = schudkaarten();
       deelkaarten(pile);
       StartGame();
+      io.emit("topstackchange", {
+        topstapel: 'EMPTY'
+      });
 
     }
   })
+
+  socket.on("passturn", function(){
+    console.log("CURRENT TURN:   " + currentturn);
+    localStorage.getItem("currentturn");
+    currentturn = nextplayer(currentturn);
+
+      console.log("CURRENT TURN:   " + currentturn);
+    localStorage.setItem("currentturn",  String(currentturn));
+  })
+
+
+
   socket.on('status', function(data){
     console.log('ready status = ' + player.ready);
   })
+
+  socket.on("kaartkopen", function(){
+    pot = GAME_LIST["pot"]
+    if(GAME_LIST[1]["forcetake"] == 0){
+      toppot = pot[pot.length - 1];
+      PLAYER_LIST[socket.id].hand.push(toppot)
+      GAME_LIST["pot"].splice(-1,1);
+      hand = PLAYER_LIST[socket.id].hand                                                /////////HIEEERR
+      socket.emit("hand", hand);
+    }
+    else{
+      var i = 0;
+      while(i < GAME_LIST[1]["forcetake"]){
+        i++;
+        toppot = pot[pot.length - 1];
+        PLAYER_LIST[socket.id].hand.push(toppot)
+        GAME_LIST["pot"].splice(-1,1);
+        hand = PLAYER_LIST[socket.id].hand                                                /////////HIEEERR
+        socket.emit("hand", hand);
+      }
+      GAME_LIST[1]["forcetake"] = 0;
+    }
+
+  });
+
 
   socket.on('selectedcard', function(data){
     // if(localStorage.getItem("legstapel" != null)){
@@ -115,10 +155,9 @@ localStorage.setItem("currentturn", "undefined");
     // else{
     //   var legstapel = [];
     // }
+    if(GAME_LIST[1]["forcetake"] == 0){
     var legstapel = GAME_LIST[1].legstapel;
     //console.log(PLAYER_LIST[socket.id].hand[data.card]);
-    console.log("SOCKET: ", );
-    console.log("SOCKET: ", SOCKET_LIST[id].id);
     var infonext = dealnodeal(GAME_LIST[1].topstapel, PLAYER_LIST[id].hand[data.card]);
     //[value, next, boer]
     if(infonext[2] == true){
@@ -127,16 +166,11 @@ localStorage.setItem("currentturn", "undefined");
     if(infonext[0] == true && infonext[1] == true){
       io.emit('right');
       if(localStorage.getItem("currentturn") == "undefined"){
-        console.log("ja localStorage is dus null");
-        console.log(PLAYING_LIST[1]);
         currentturn = PLAYING_LIST[1];
       }
       else{
-        console.log("nee localStorage is dus niet null");
-        console.log(localStorage.getItem("currentturn"))
         currentturn = localStorage.getItem("currentturn");
       }
-      console.log("CURRENT TURN:   " + currentturn);
       currentturn = nextplayer(currentturn);
       localStorage.setItem("currentturn",  String(currentturn));
     }
@@ -149,28 +183,27 @@ localStorage.setItem("currentturn", "undefined");
 
     if(infonext[0] == true){
       legstapel.push(PLAYER_LIST[id].hand[data.card]);
-      console.log(legstapel)
       GAME_LIST[1].topstapel = PLAYER_LIST[id].hand[data.card];
       GAME_LIST[1].legstapel = legstapel;
 
-      console.log(PLAYER_LIST[id].hand)
-      console.log(data.card)
       dearray = PLAYER_LIST[id].hand
       dearray.splice(data.card, 1);
-      console.log(id)
       PLAYER_LIST[id].hand = dearray;
-      console.log(dearray)
-      console.log(data.card)
       SOCKET_LIST[id].emit("handchange", {
         card: data.card
       })
     };
-    console.log("topstackchange     " + GAME_LIST[1].topstapel);
     //for(var i in SOCKET_LIST){
       var socket = SOCKET_LIST[i];
       io.emit("topstackchange", {
         topstapel: GAME_LIST[1].topstapel
       });
+    }
+    else{
+      SOCKET_LIST[id].emit("eerst kaarten pakken", {
+        amount: GAME_LIST[1]["forcetake"]
+      })
+    }
     //};
   });
 });
@@ -197,7 +230,7 @@ setInterval(function(){
 }, 100/25);
 
 schudkaarten = function(){
-   var pile = ["2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "BH", "QH", "KH", "AH", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "BD", "QD", "KD", "AF", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "BS", "QS", "KS", "AS", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "BC", "QC", "KC", "AC", "JOKER", "JOKER"]
+   var pile = ["2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "TH", "BH", "QH", "KH", "AH", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "TD", "BD", "QD", "KD", "AF", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "TS", "BS", "QS", "KS", "AS", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "TC", "BC", "QC", "KC", "AC", "JOKER", "JOKER"]
    for (let i = pile.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pile[i], pile[j]] = [pile[j], pile[i]];
@@ -214,7 +247,6 @@ dealnodeal = function(topstack, chosen){
     value = true;
   }
   else if (topstack == "JOKER") {
-    forcetake(5);
     value=true;
     next=true;
   }
@@ -242,8 +274,9 @@ dealnodeal = function(topstack, chosen){
   //}
 
   if (chosen == "JOKER") {
+    forcetake(5);
     value = true;
-  }else if(topsplit[0] == "2"){
+  }else if(chosensplit[0] == "2"){
     forcetake(2);
   }
   if(topsplit[1] == chosensplit[1]){
@@ -268,7 +301,6 @@ dealnodeal = function(topstack, chosen){
       boer = true;
     }
   }
-  console.log("value: " + value + "   next: " + next + "   boer: " + boer);
   return t = [value, next, boer];
 };
 
@@ -292,6 +324,7 @@ deelkaarten = function(pile){
     hand = player.hand;
     SOCKET_LIST[i].emit("hand", hand);
   }
+  GAME_LIST["pot"] = pile;
 }
 
 StartGame = function(){
@@ -307,20 +340,15 @@ StartGame = function(){
 
 
 turnchanged = function(){
-  console.log("hier ff kieke")
   for(var i in PLAYING_LIST){
     console.log(i);
   }
   for(var i in PLAYING_LIST){
     var player = PLAYER_LIST[PLAYING_LIST[i]];
     if(player.go == 1){
-      console.log("EMITTING YOURTURN:   ", i);
-        console.log(player);
       SOCKET_LIST[PLAYING_LIST[i]].emit("yourturn");
     }
     else{
-      console.log("NOTYOURTURN:   ", i);
-      console.log(i);
       //SOCKET_LIST[i].emit("notyou");
       SOCKET_LIST[PLAYING_LIST[i]].emit("notyou")
       //SOCKET_LIST[i].emit("notyou");
@@ -351,14 +379,6 @@ nextplayer = function(currentturn){
   }
 
   var deelnemers = Object.keys(PLAYER_LIST).length;
-  console.log("--------------------")
-  console.log("--------------------")
-  console.log("--------------------")
-  console.log(currentturn)
-  console.log(PLAYING_LIST[deelnemers])
-  console.log("--------------------")
-  console.log("--------------------")
-  console.log("--------------------")
   if(currentturn != PLAYING_LIST[deelnemers]){
     for(i in PLAYER_LIST){
       // if(PLAYING_LIST[parseInt(PLAYING_LIST.getKeyByValue( currentturn)) + 1] == i){
@@ -392,4 +412,8 @@ nextplayer = function(currentturn){
 
 goAgain = function(){
 
+}
+
+forcetake = function(amount){
+  GAME_LIST[1]["forcetake"] = amount;
 }

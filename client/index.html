@@ -8,7 +8,7 @@
   <h1 id="turnstatus">TURN</h1>
 <div id="mid">
   <div id="pot">
-    <img id="backcard" src="/client/img/BACK.png"/>
+    <img id="backcard" onclick="Kopen()" src="/client/img/BACK.png"/>
   </div>
   <div id="game">
     <img id="gamepile" src="/client/img/EMPTY.png"/>
@@ -34,6 +34,7 @@
 </div>
 
 <script>
+  localStorage.setItem("gekocht", "0");
   var socket = io();
   turn = 0;
 
@@ -49,8 +50,9 @@
   });
   socket.on('hand', function(hand){
     console.log("kaarten gekregen");
-    for(var i=0; i < hand.length; i++){
       var node = document.getElementById("hand");
+      node.innerHTML = '';
+    for(var i=0; i < hand.length; i++){
       var subnode = document.createElement("a");
       subnode.setAttribute("class", "card");
       subnode.setAttribute("name", i);
@@ -94,7 +96,20 @@
 
   });
 
-
+  socket.on("eerst kaarten pakken", function(data){
+    var turnstatus= document.getElementById("turnstatus");
+    if(localStorage.getItem("turn") == '1'){
+    setTimeout(function(){
+      turnstatus.innerHTML = "Je bent aan de beurt";
+    }, 2000);
+    }
+    else{
+      setTimeout(function(){
+        turnstatus.innerHTML = "Wacht op je beurt";
+      }, 2000);
+    }
+    turnstatus.innerHTML = "Je moet eerst " + data.amount + " kaart(en) kopen";
+  });
 
 
   socket.on('wrong', function(){
@@ -157,10 +172,14 @@
 
   PassTurn = function(){
     console.log("passturn");
+    gekocht = localStorage.getItem("gekocht");
     if(gekocht == true){
+      console.log('PASSING TURN YEAH')
       socket.emit('passturn');
+      localStorage.setItem("gekocht", "0");
     }
     else{
+      console.log("FUCK YOU BUY CARD")
       var turnstatus= document.getElementById("turnstatus");
       if(localStorage.getItem("turn") == '1'){
       setTimeout(function(){
@@ -174,7 +193,22 @@
       }
       turnstatus.innerHTML = "Je moet eerst een kaart van de pot pakken";
     }
-  }
+  };
+
+  Kopen = function(){
+    console.log("kaarten kopen boi")
+    if(localStorage.getItem("turn") == '1'){
+      socket.emit("kaartkopen");
+      localStorage.setItem("gekocht", '1');
+    }
+    else{
+      var turnstatus= document.getElementById("turnstatus");
+      turnstatus.innerHTML = "Het is niet jouw beurt";
+      setTimeout(function(){
+        turnstatus.innerHTML = "Wacht op je beurt";
+      }, 2000);
+    }
+  };
 
 </script>
 </body>
