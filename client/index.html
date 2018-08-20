@@ -112,6 +112,11 @@
   });
 
 
+  socket.on("skip", function(){
+    skip()
+
+  })
+
   socket.on('wrong', function(){
     var turnstatus= document.getElementById("turnstatus");
     if(localStorage.getItem("turn") == '1'){
@@ -125,7 +130,6 @@
       }, 2000);
     }
     turnstatus.innerHTML = "Deze kaart kan niet op de stapel";
-
   });
 
   socket.on('Boerchoice', function(){
@@ -143,6 +147,13 @@
   });
 
 
+  skip = function(){
+    var turnstatus= document.getElementById("turnstatus");
+    setTimeout(function(){
+      turnstatus.innerHTML = "Wacht op je beurt";
+    }, 2000);
+    turnstatus.innerHTML = "Je wordt overgeslagen";
+  };
 
   PickCard = function(Cname){
     var turn = localStorage.getItem('turn')
@@ -163,6 +174,7 @@
       status: 1
     });
   };
+
   Status = function(){
     console.log('statuscall');
     socket.emit('status', {
@@ -200,6 +212,17 @@
     if(localStorage.getItem("turn") == '1'){
       socket.emit("kaartkopen");
       localStorage.setItem("gekocht", '1');
+    }
+    // if(localStorage.getItem("turn") == '1' && localStorage.getItem("gekocht") != '1'){
+    //   socket.emit("kaartkopen");
+    //   localStorage.setItem("gekocht", '1');
+    // }
+    else if(localStorage.getItem("turn") == '1' && localStorage.getItem("gekocht") == '1'){
+      var turnstatus= document.getElementById("turnstatus");
+      turnstatus.innerHTML = "Je hebt al kaarten gepakt";
+      setTimeout(function(){
+        turnstatus.innerHTML = "Je bent aan de beurt";
+      }, 2000);
     }
     else{
       var turnstatus= document.getElementById("turnstatus");

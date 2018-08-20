@@ -1,12 +1,5 @@
-//
-//
-//8 wacht
-//
-//gamestapel bouwen
 //endgame logica
 //design
-//
-//
 
 
 console.log("hello world");
@@ -110,8 +103,9 @@ localStorage.setItem("currentturn", "undefined");
 
   socket.on("passturn", function(){
     console.log("CURRENT TURN:   " + currentturn);
-    localStorage.getItem("currentturn");
+    currentturn = localStorage.getItem("currentturn");
     currentturn = nextplayer(currentturn);
+    turnchanged();
 
       console.log("CURRENT TURN:   " + currentturn);
     localStorage.setItem("currentturn",  String(currentturn));
@@ -125,6 +119,12 @@ localStorage.setItem("currentturn", "undefined");
 
   socket.on("kaartkopen", function(){
     pot = GAME_LIST["pot"]
+    console.log("dit is dus de pot", pot);
+
+    if (GAME_LIST["pot"].length < 7){
+      reshuffle();
+    }
+
     if(GAME_LIST[1]["forcetake"] == 0){
       toppot = pot[pot.length - 1];
       PLAYER_LIST[socket.id].hand.push(toppot)
@@ -149,6 +149,7 @@ localStorage.setItem("currentturn", "undefined");
 
 
   socket.on('selectedcard', function(data){
+    console.log(GAME_LIST)
     // if(localStorage.getItem("legstapel" != null)){
     //   var legstapel = localStorage.getItem("legstapel");
     // }
@@ -160,6 +161,17 @@ localStorage.setItem("currentturn", "undefined");
     //console.log(PLAYER_LIST[socket.id].hand[data.card]);
     var infonext = dealnodeal(GAME_LIST[1].topstapel, PLAYER_LIST[id].hand[data.card]);
     //[value, next, boer]
+    if(infonext[3] == true){
+      SOCKET_LIST[id].emit("skip");
+      if(localStorage.getItem("currentturn") == "undefined"){
+        currentturn = PLAYING_LIST[1];
+      }
+      else{
+        currentturn = localStorage.getItem("currentturn");
+      }
+      currentturn = nextplayer(currentturn);
+      localStorage.setItem("currentturn",  String(currentturn));
+    }
     if(infonext[2] == true){
       io.emit('Boerchoice');
     }
@@ -204,6 +216,8 @@ localStorage.setItem("currentturn", "undefined");
         amount: GAME_LIST[1]["forcetake"]
       })
     }
+
+    console.log(GAME_LIST[1].legstapel);
     //};
   });
 });
@@ -242,6 +256,7 @@ dealnodeal = function(topstack, chosen){
   var next = true;
   var boer = false;
   var value = false;
+  var acht = false;
   if(topstack == "EMPTY"){
     next = true;
     value = true;
@@ -292,7 +307,8 @@ dealnodeal = function(topstack, chosen){
       next = false;
     }
     else if (chosensplit[0] == "8") {
-      next = false;
+      next = true;
+      acht = true;
     }
     else if (chosensplit[0] == "K") {
       next = false;
@@ -301,7 +317,7 @@ dealnodeal = function(topstack, chosen){
       boer = true;
     }
   }
-  return t = [value, next, boer];
+  return t = [value, next, boer, acht];
 };
 
 AllPlayersReady = function(){
@@ -416,4 +432,27 @@ goAgain = function(){
 
 forcetake = function(amount){
   GAME_LIST[1]["forcetake"] = amount;
+}
+
+reshuffle = function(){
+
+  legstapel = GAME_LIST[1].legstapel;
+  console.log("CURRENT LEGSTAPEL:     ", legstapel);
+  legstapellength = legstapel.length - 1;
+  for(var i = 0; i<legstapellength; i++){
+    GAME_LIST["pot"].push(legstapel[i]);
+  }
+  var save = legstapel[legstapel.length - 1];
+  legstapel = [];
+  legstapel.push(save);
+  var pile = GAME_LIST["pot"];
+  for (let i = pile.length - 1; i > 0; i--) {
+       const j = Math.floor(Math.random() * (i + 1));
+       [pile[i], pile[j]] = [pile[j], pile[i]];
+   }
+   GAME_LIST["pot"] = pile;
+   GAME_LIST[1].legstapel = legstapel;
+
+  console.log("LEGSTAPEL:     ", legstapel);
+  console.log("POT:      ", GAME_LIST["pot"]);
 }
