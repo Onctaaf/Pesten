@@ -1,5 +1,5 @@
-//endgame logica
 //design
+//BOER
 
 
 console.log("hello world");
@@ -147,6 +147,56 @@ localStorage.setItem("currentturn", "undefined");
 
   });
 
+  socket.on("Hearts", function(){
+    topstack = GAME_LIST[1].topstapel;
+    topsplit = topstack.split('');
+    topsplit[1] = "h";
+    GAME_LIST[1].topstapel = topsplit.join('');
+    GAME_LIST[1].legstapel[GAME_LIST[1].legstapel.length -1] = "bh";
+    io.emit("topstackchange", {
+      topstapel: GAME_LIST[1].topstapel
+    });
+    io.emit("resume");
+
+  });
+  socket.on("Diamonds", function(){
+    topstack = GAME_LIST[1].topstapel;
+    topsplit = topstack.split('');
+    topsplit[1] = "d";
+    GAME_LIST[1].topstapel = topsplit.join('');
+    GAME_LIST[1].legstapel[GAME_LIST[1].legstapel.length -1] = "bd";
+    io.emit("topstackchange", {
+      topstapel: GAME_LIST[1].topstapel
+    });
+    io.emit("resume");
+
+  });
+  socket.on("Spades", function(){
+    topstack = GAME_LIST[1].topstapel;
+    topsplit = topstack.split('');
+    topsplit[1] = "s";
+    GAME_LIST[1].topstapel = topsplit.join('');
+    GAME_LIST[1].legstapel[GAME_LIST[1].legstapel.length -1] = "bs";
+    io.emit("topstackchange", {
+      topstapel: GAME_LIST[1].topstapel
+    });
+    io.emit("resume");
+
+  });
+  socket.on("Clubs", function(){
+    topstack = GAME_LIST[1].topstapel;
+    topsplit = topstack.split('');
+    topsplit[1] = "c";
+    GAME_LIST[1].topstapel = topsplit.join('');
+    GAME_LIST[1].legstapel[GAME_LIST[1].legstapel.length -1] = "bc";
+    io.emit("topstackchange", {
+      topstapel: GAME_LIST[1].topstapel
+    });
+    io.emit("resume");
+
+  });
+
+
   socket.on('iwon', function(data){
     for(i in PLAYER_LIST){
       if(i == data.winner){
@@ -172,7 +222,7 @@ localStorage.setItem("currentturn", "undefined");
     var legstapel = GAME_LIST[1].legstapel;
     //console.log(PLAYER_LIST[socket.id].hand[data.card]);
     var infonext = dealnodeal(GAME_LIST[1].topstapel, PLAYER_LIST[id].hand[data.card]);
-    //[value, next, boer]
+    //[value, next, boer, acht]
 
 
     if(infonext[3] == true){
@@ -188,7 +238,8 @@ localStorage.setItem("currentturn", "undefined");
       localStorage.setItem("currentturn",  String(currentturn));
     }
     if(infonext[2] == true){
-      io.emit('Boerchoice');
+      SOCKET_LIST[id].emit('Boerchoice');
+      io.emit('wacht');
     }
     if(infonext[0] == true && infonext[1] == true){
       io.emit('right');

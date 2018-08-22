@@ -23,17 +23,18 @@
 
 <div id="boerkeuze">
   <div id="middenkeuze">
-    <form>
-      <input class="radio" type="radio" name="boer"> Harten</input><br>
-      <input class="radio" type="radio" name="boer"> Ruiten</input><br>
-      <input class="radio" type="radio" name="boer"> Schoppen</input><br>
-      <input class="radio" type="radio" name="boer"> Klaver</input><br>
-      <input type="submit" value="Maak keuze"></input>
-    </form>
+    <a onclick="Hearts()"><img id="hearts" src="/client/img/hearts.png"></a>
+      <a onclick="Diamonds()"><img id="diamonds" src="/client/img/diamonds.png"></a>
+        <a onclick="Spades()"><img id="spades" src="/client/img/spades.png"></a>
+          <a onclick="Clubs()"><img id="clubs" src="/client/img/clubs.png"></a>
   </div>
 </div>
+<div id="ffwachten"></div>
 
 <script>
+
+
+
   localStorage.setItem("gekocht", "0");
   var socket = io();
   turn = 0;
@@ -41,7 +42,7 @@
   socket.on('connect', function() {
     var sessionid = socket.id;
     localStorage.setItem("sessionid", sessionid);
-  })
+  });
 
 
 
@@ -57,7 +58,7 @@
       subnode.setAttribute("class", "card");
       subnode.setAttribute("name", i);
       subnode.setAttribute("id", i);
-      subnode.setAttribute("onclick", "PickCard(getAttribute('name'))")
+      subnode.setAttribute("onclick", "PickCard(getAttribute('name'))");
       var textnode = document.createTextNode(hand[i]);
       var image = document.createElement("img");
       image.setAttribute("src", "/client/img/" + hand[i] + ".png");
@@ -69,7 +70,7 @@
 
   socket.on("handchange", function(data){
     var hand = document.getElementById("hand");
-    hand.removeChild(document.getElementById(data.card))
+    hand.removeChild(document.getElementById(data.card));
     var handlength = hand.childElementCount;
     for(var i=0; i < handlength; i++){
       thiscard = hand.children[i];
@@ -78,7 +79,7 @@
     }
 
       haviwon();
-  })
+  });
 
   // socket.on("you won", function(){
   //     console.log("GEWONNEN");
@@ -101,16 +102,26 @@
         else{
           console.log("VERLOREN");
         }
-      })
+      });
 
-      socket.on("loser"){
+      socket.on("loser", function(){
         console.log("LOST");
-      }
+        var turnstatus= document.getElementById("turnstatus");
+        turnstatus.innerHTML = "Je hebt verloren";
+        setTimeout(function(){
+          turnstatus.innerHTML = "Je hebt verloren";
+        }, 2000);
+      });
 
 
-            socket.on("winner"){
+            socket.on("winner", function(){
               console.log("WON");
-            }
+              var turnstatus= document.getElementById("turnstatus");
+              turnstatus.innerHTML = "Je hebt gewonnen";
+              setTimeout(function(){
+                turnstatus.innerHTML = "Je hebt gewonnen";
+              }, 2000);
+            });
 
 
 
@@ -150,7 +161,7 @@
 
 
   socket.on("skip", function(){
-    skip()
+    skip();
 
   });
 
@@ -178,8 +189,20 @@
     document.getElementById("boerkeuze").style.zIndex = "10";
   });
 
+  socket.on('wacht', function(){
+    document.getElementById("ffwachten").style.display = "block";
+    document.getElementById("ffwachten").style.zIndex = "9";
+    console.log("wacht");
+  });
+
+  socket.on("resume", function(){
+    document.getElementById("ffwachten").style.display = "none";
+    document.getElementById("ffwachten").style.zIndex = "-2";
+    console.log("resume");
+  })
+
   socket.on('notyou', function(turn){
-    console.log("NOTYOU")
+    console.log("NOTYOU");
     var turnstatus = document.getElementById("turnstatus");
     turnstatus.innerHTML= "Wacht op je beurt";
     turn = 0;
@@ -187,7 +210,7 @@
     console.log(localStorage.getItem('turn'));
   });
 
-};
+//};
   skip = function(){
     var turnstatus= document.getElementById("turnstatus");
     setTimeout(function(){
@@ -197,7 +220,7 @@
   };
 
   PickCard = function(Cname){
-    var turn = localStorage.getItem('turn')
+    var turn = localStorage.getItem('turn');
     console.log(turn);
     if(turn == '1'){
       console.log("card selected : " + Cname);
@@ -227,12 +250,12 @@
     console.log("passturn");
     gekocht = localStorage.getItem("gekocht");
     if(gekocht == true){
-      console.log('PASSING TURN YEAH')
+      console.log('PASSING TURN YEAH');
       socket.emit('passturn');
       localStorage.setItem("gekocht", "0");
     }
     else{
-      console.log("FUCK YOU BUY CARD")
+      console.log("FUCK YOU BUY CARD");
       var turnstatus= document.getElementById("turnstatus");
       if(localStorage.getItem("turn") == '1'){
       setTimeout(function(){
@@ -261,7 +284,7 @@
   };
 
   Kopen = function(){
-    console.log("kaarten kopen boi")
+    console.log("kaarten kopen boi");
     if(localStorage.getItem("turn") == '1'){
       socket.emit("kaartkopen");
       localStorage.setItem("gekocht", '1');
@@ -285,6 +308,56 @@
       }, 2000);
     }
   };
+
+  Hearts = function(){
+    socket.emit("Hearts");
+    document.getElementById("boerkeuze").style.display = "none";
+    document.getElementById("boerkeuze").style.zIndex = "-10";
+  };
+
+    Diamonds = function(){
+      socket.emit("Diamonds");
+      document.getElementById("boerkeuze").style.display = "none";
+      document.getElementById("boerkeuze").style.zIndex = "-10";
+    };
+
+      Spades = function(){
+        socket.emit("Spades");
+        document.getElementById("boerkeuze").style.display = "none";
+        document.getElementById("boerkeuze").style.zIndex = "-10";
+      };
+
+        Clubs = function(){
+          socket.emit("Clubs");
+          document.getElementById("boerkeuze").style.display = "none";
+          document.getElementById("boerkeuze").style.zIndex = "-10";
+        };
+
+
+    function getRadioVal(form, name) {
+      var val;
+      // get list of radio buttons with specified name
+      var radios = form.elements[name];
+
+      // loop through list of radio buttons
+      for (var i=0, len=radios.length; i<len; i++) {
+          if ( radios[i].checked ) { // radio checked?
+              val = radios[i].value; // if so, hold its value in val
+              break; // and break out of for loop
+          }
+      }
+      return val; // return value of checked radio or undefined if none checked
+  }
+
+
+  document.getElementById('Boerform').onsubmit = function() {
+    // this (keyword) refers to form to which onsubmit attached
+    // 'ship' is name of radio button group
+    var val = getRadioVal(this, 'ship');
+    // display value obtained
+    alert(val);
+    // more code here ...
+  }
 
 </script>
 </body>
