@@ -161,6 +161,8 @@ localStorage.setItem("currentturn", "undefined");
     //console.log(PLAYER_LIST[socket.id].hand[data.card]);
     var infonext = dealnodeal(GAME_LIST[1].topstapel, PLAYER_LIST[id].hand[data.card]);
     //[value, next, boer]
+
+
     if(infonext[3] == true){
       SOCKET_LIST[id].emit("skip");
       if(localStorage.getItem("currentturn") == "undefined"){
@@ -169,6 +171,7 @@ localStorage.setItem("currentturn", "undefined");
       else{
         currentturn = localStorage.getItem("currentturn");
       }
+      previousturn = currentturn;
       currentturn = nextplayer(currentturn);
       localStorage.setItem("currentturn",  String(currentturn));
     }
@@ -207,6 +210,14 @@ localStorage.setItem("currentturn", "undefined");
     };
     //for(var i in SOCKET_LIST){
       var socket = SOCKET_LIST[i];
+
+
+      console.log("DIT IS DE CURRENT HAND DIE MISSCHIEN LEEG IS:    ", PLAYER_LIST[currentturn].hand[0])
+      if(String(PLAYER_LIST[currentturn].hand[0]) == "undefined"){
+        console.log("IEMAND HEEFT GEWONNEN    ", PLAYER_LIST[currentturn]);
+        finishgame(PLAYER_LIST[socket.id]);
+      }
+
       io.emit("topstackchange", {
         topstapel: GAME_LIST[1].topstapel
       });
@@ -244,7 +255,7 @@ setInterval(function(){
 }, 100/25);
 
 schudkaarten = function(){
-   var pile = ["2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "TH", "BH", "QH", "KH", "AH", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "TD", "BD", "QD", "KD", "AF", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "TS", "BS", "QS", "KS", "AS", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "TC", "BC", "QC", "KC", "AC", "JOKER", "JOKER"]
+   var pile = ["2h", "3h", "4h", "5h", "6h", "7h", "8h", "9h", "th", "bh", "qh", "kh", "ah", "2d", "3d", "4d", "5d", "6d", "7d", "8d", "9d", "td", "bd", "qd", "kd", "ad", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s", "ts", "bs", "qs", "ks", "as", "2c", "3c", "4c", "5c", "6c", "7c", "8c", "9c", "tc", "bc", "qc", "kc", "ac", "joker", "joker"]
    for (let i = pile.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pile[i], pile[j]] = [pile[j], pile[i]];
@@ -261,7 +272,7 @@ dealnodeal = function(topstack, chosen){
     next = true;
     value = true;
   }
-  else if (topstack == "JOKER") {
+  else if (topstack == "joker") {
     value=true;
     next=true;
   }
@@ -288,7 +299,7 @@ dealnodeal = function(topstack, chosen){
     }
   //}
 
-  if (chosen == "JOKER") {
+  if (chosen == "joker") {
     forcetake(5);
     value = true;
   }else if(chosensplit[0] == "2"){
@@ -455,4 +466,11 @@ reshuffle = function(){
 
   console.log("LEGSTAPEL:     ", legstapel);
   console.log("POT:      ", GAME_LIST["pot"]);
+}
+
+finishgame = function(player){
+      console.log("EMITTING FINISHED     ", player)
+      io.emit("finished", {
+        winner: player.id
+      });
 }

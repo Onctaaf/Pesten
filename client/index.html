@@ -78,6 +78,30 @@
     }
   })
 
+  // socket.on("you won", function(){
+  //     console.log("GEWONNEN");
+  //   var turnstatus= document.getElementById("turnstatus");
+  //   turnstatus.innerHTML = "Je hebt gewonnen!";
+  // });
+  //
+  //
+  // socket.on("you lost", function(){
+  //     console.log("VERLOREN");
+  //     var turnstatus= document.getElementById("turnstatus");
+  //     turnstatus.innerHTML = "Je hebt verloren";
+  // });
+      socket.on("finished", function(data){
+        console.log(String(localStorage.getItem("sessionid")));
+        console.log(data.winner);
+        if(String(localStorage.getItem("sessionid")) == data.winner){
+          console.log("GEWONNEN");
+        }
+        else{
+          console.log("VERLOREN");
+        }
+      })
+
+
   socket.on("topstackchange", function(data){
     console.log("topstackchange");
     var stapel = document.getElementById("gamepile");
