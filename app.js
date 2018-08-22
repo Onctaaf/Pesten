@@ -147,6 +147,18 @@ localStorage.setItem("currentturn", "undefined");
 
   });
 
+  socket.on('iwon', function(data){
+    for(i in PLAYER_LIST){
+      if(i == data.winner){
+        console.log("WINNER:     ", i, "   and    ", data.winner);
+        SOCKET_LIST[i].emit("winner");
+      }
+      else{
+        console.log("LOSER:     ", i, "   and    ", data.winner);
+        SOCKET_LIST[i].emit("loser");
+      }
+    }
+  });
 
   socket.on('selectedcard', function(data){
     console.log(GAME_LIST)
@@ -209,14 +221,14 @@ localStorage.setItem("currentturn", "undefined");
       })
     };
     //for(var i in SOCKET_LIST){
-      var socket = SOCKET_LIST[i];
+      //var socket = SOCKET_LIST[i];
 
 
-      console.log("DIT IS DE CURRENT HAND DIE MISSCHIEN LEEG IS:    ", PLAYER_LIST[currentturn].hand[0])
-      if(String(PLAYER_LIST[currentturn].hand[0]) == "undefined"){
-        console.log("IEMAND HEEFT GEWONNEN    ", PLAYER_LIST[currentturn]);
-        finishgame(PLAYER_LIST[socket.id]);
-      }
+      // console.log("DIT IS DE CURRENT HAND DIE MISSCHIEN LEEG IS:    ", PLAYER_LIST[currentturn].hand[0])
+      // if(String(PLAYER_LIST[currentturn].hand[0]) == "undefined"){
+      //   console.log("IEMAND HEEFT GEWONNEN    ", PLAYER_LIST[currentturn]);
+      //   finishgame(PLAYER_LIST[socket.id]);
+      // }
 
       io.emit("topstackchange", {
         topstapel: GAME_LIST[1].topstapel
@@ -321,10 +333,10 @@ dealnodeal = function(topstack, chosen){
       next = true;
       acht = true;
     }
-    else if (chosensplit[0] == "K") {
+    else if (chosensplit[0] == "k") {
       next = false;
     }
-    else if (chosensplit[0] == "B") {
+    else if (chosensplit[0] == "b") {
       boer = true;
     }
   }

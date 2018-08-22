@@ -76,6 +76,8 @@
       thiscard.setAttribute("name", i);
       thiscard.setAttribute("id", i);
     }
+
+      haviwon();
   })
 
   // socket.on("you won", function(){
@@ -101,12 +103,23 @@
         }
       })
 
+      socket.on("loser"){
+        console.log("LOST");
+      }
+
+
+            socket.on("winner"){
+              console.log("WON");
+            }
+
+
 
   socket.on("topstackchange", function(data){
     console.log("topstackchange");
     var stapel = document.getElementById("gamepile");
     stapel.setAttribute("src", "/client/img/" + data.topstapel + ".png");
 
+      haviwon();
   });
 
   socket.on('yourturn', function(){
@@ -139,7 +152,11 @@
   socket.on("skip", function(){
     skip()
 
-  })
+  });
+
+  socket.on('right', function(){
+    haviwon();
+  });
 
   socket.on('wrong', function(){
     var turnstatus= document.getElementById("turnstatus");
@@ -170,7 +187,7 @@
     console.log(localStorage.getItem('turn'));
   });
 
-
+};
   skip = function(){
     var turnstatus= document.getElementById("turnstatus");
     setTimeout(function(){
@@ -228,6 +245,18 @@
         }, 2000);
       }
       turnstatus.innerHTML = "Je moet eerst een kaart van de pot pakken";
+    }
+  };
+
+  haviwon = function(){
+    var hand = document.getElementById("hand");
+    var sessionid = localStorage.getItem("sessionid");
+    console.log("HAND:    ", hand.childElementCount);
+    console.log("SESSIONID:    ", sessionid);
+    if (hand.childElementCount == 0) {
+      socket.emit("iwon", {
+        winner: sessionid
+      });
     }
   };
 
