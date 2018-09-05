@@ -1,4 +1,4 @@
-<html>
+<html id="html">
 <head>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 
@@ -6,6 +6,12 @@
 </head>
 <body>
   <h1 id="turnstatus">TURN</h1>
+  <div id="controls" class="controlsection">
+  <button onclick="Readyup()" class="buttons" id="readyButton">Ready</button>
+  <button onclick="Status()" class="buttons" id="statusButton">Status</button>
+  <button onclick="PassTurn()" class="buttons" id="passButton">Klaar</button>
+  </div>
+  <div class="outer">
 <div id="mid">
   <div id="pot">
     <img id="backcard" onclick="Kopen()" src="/client/img/BACK.png"/>
@@ -14,25 +20,30 @@
     <img id="gamepile" src="/client/img/EMPTY.png"/>
   </div>
 </div>
+</div>
+<br>
 <div id="hand"></div>
-
-<button onclick="Readyup()" id="readyButton">Ready</button>
-<button onclick="Status()" id="statusButton">Status</button>
-<button onclick="PassTurn()" id="passButton">Klaar</button>
+<br>
 
 
 <div id="boerkeuze">
   <div id="middenkeuze">
-    <a onclick="Hearts()"><img id="hearts" src="/client/img/hearts.png"></a>
-      <a onclick="Diamonds()"><img id="diamonds" src="/client/img/diamonds.png"></a>
-        <a onclick="Spades()"><img id="spades" src="/client/img/spades.png"></a>
-          <a onclick="Clubs()"><img id="clubs" src="/client/img/clubs.png"></a>
+    <a onclick="Hearts()"><img id="hearts" class="boerimg" src="/client/img/hearts.png"></a>
+      <a onclick="Diamonds()"><img id="diamonds" class="boerimg" src="/client/img/diamonds.png"></a>
+        <a onclick="Spades()"><img id="spades" class="boerimg" src="/client/img/spades.png"></a>
+          <a onclick="Clubs()"><img id="clubs" class="boerimg" src="/client/img/clubs.png"></a>
   </div>
 </div>
 <div id="ffwachten"></div>
 
 <script>
 
+  var html = document.getElementById("html");
+  var width = html.offsetWidth;
+  console.log(width);
+  console.log("calc(", width/2 * -1, ")px");
+  //html.style.left = width/2 * -1, "em";
+  //html.style.marginLeft = "50%";
 
 
   localStorage.setItem("gekocht", "0");
@@ -350,14 +361,14 @@
   }
 
 
-  document.getElementById('Boerform').onsubmit = function() {
-    // this (keyword) refers to form to which onsubmit attached
-    // 'ship' is name of radio button group
-    var val = getRadioVal(this, 'ship');
-    // display value obtained
-    alert(val);
-    // more code here ...
-  }
+  // document.getElementById('Boerform').onsubmit = function() {
+  //   // this (keyword) refers to form to which onsubmit attached
+  //   // 'ship' is name of radio button group
+  //   var val = getRadioVal(this, 'ship');
+  //   // display value obtained
+  //   alert(val);
+  //   // more code here ...
+  // }
 
 </script>
 </body>

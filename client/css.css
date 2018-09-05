@@ -1,9 +1,13 @@
-button{
-  width: 500px !important;
-}
+
 
 html{
   font-family: sans-serif;
+  width: 1180px;
+  /* margin-left: 50%; */
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #444444;
+  color: #DDDDDD;
 }
 
 #pot{
@@ -11,6 +15,71 @@ html{
 }
 
 #game{
+}
+
+.controlsection{
+  position: relative;
+  margin-top: 13%;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+img{
+  width: 110px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#mid{
+  /* align-items: center;
+  margin-left: auto;
+  margin-right: auto;*/
+  width: 236px;
+  position: absolute;
+  left: -118px;
+  float: left;
+  margin-left: 50%;
+}
+#hand{
+  /* margin-left: auto;
+  margin-right: auto;*/
+  width: 100%;
+  position: absolute;
+  float: left;
+  align-content: center;
+  margin-top: 200px;
+  max-width: 1180px;
+}
+
+.buttons{
+  position: relative;
+  width: 33% !important;
+  border: none;
+  float: left;
+  margin-left: 2px;
+  margin-right: 1px;
+}
+
+.outer{
+  margin-top: 2%;
+  position: absolute;
+  left: 50%;
+  float: left;
+}
+
+#turnstatus{
+  position: absolute;
+  text-align: center;
+  width: 1180px;
+  margin-top: -5%;
+}
+
+.boerimg{
+  width: 50px;
+  padding: 10px;
 }
 
 #boerkeuze{
