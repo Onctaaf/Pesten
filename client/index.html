@@ -1,6 +1,7 @@
 <html id="html">
 <head>
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="/client/css.css">
 </head>
@@ -22,7 +23,7 @@
 </div>
 </div>
 <br>
-<div id="hand"></div>
+<div id="hand"><div id="cardwrap"></div></div>
 <br>
 
 
@@ -36,7 +37,31 @@
 </div>
 <div id="ffwachten"></div>
 
+<div id="wrapfabtest" style="z-index: -100;">
+  <a class="ad">
+    <script>
+
+      localStorage.setItem("loaded", "0");
+    </script>
+    <script src="client/adsbygoogle.js" class="AD" id="ad">
+    </script>
+  </a>
+</div>
+
+
 <script>
+  //var adspage = document.getElementById(ad);
+  $( document ).ready(function(){
+    console.log( document.getElementById("ad").readyState);
+    setTimeout(
+      function(){
+        console.log(localStorage.getItem("loaded"))
+        if(localStorage.getItem("loaded") == "1"){
+        }else{
+          alert('AdBlock Detected. Ad blocker can break some parts of the website. please disable it for a good experience. ');
+        }
+    }, 1000);
+  });
 
   var html = document.getElementById("html");
   var width = html.offsetWidth;
@@ -56,14 +81,17 @@
   });
 
 
-
+//6C, 7D, JOKER
   socket.on('userdisconnect', function(){
     alert("Er is een speler gedisconnect. refresh de server");
   });
   socket.on('hand', function(hand){
     console.log("kaarten gekregen");
-      var node = document.getElementById("hand");
+      var node = document.getElementById("cardwrap");
       node.innerHTML = '';
+      var perCardRotate = 90 / hand.length;
+      var perCardRotate = perCardRotate.toString().trim();
+      console.log("perCardRotate === "+ perCardRotate+ "deg");
     for(var i=0; i < hand.length; i++){
       var subnode = document.createElement("a");
       subnode.setAttribute("class", "card");
@@ -73,14 +101,23 @@
       var textnode = document.createTextNode(hand[i]);
       var image = document.createElement("img");
       image.setAttribute("src", "/client/img/" + hand[i] + ".png");
+      image.setAttribute("zIndex", i + 1000);
+      image.setAttribute("id", i + "CARD")
+      //image.setAttribute("style", "border-style: solid; border-color: black; padding: 0; border-width: 1px;")
       subnode.appendChild(image);
       node.appendChild(subnode);
       //node.appendChild(document.createElement("br"));
+      perCardRotateString = (i * perCardRotate )- 45 + (parseFloat(perCardRotate) / 2)
+      var perCardTranslateString = (0.03 * Math.pow(perCardRotateString, 2));
+      console.log((0.03 * Math.pow(perCardRotateString, 2)))
+      document.getElementById(i + "CARD").setAttribute('style', "transform: rotate("+ perCardRotateString + 'deg) translateY( '+ perCardTranslateString +'px)   translateX( ' + Math.sin(perCardRotate * (Math.PI / 180)) * perCardTranslateString + 'px)');
+      console.log('transform: rotate(' + perCardRotateString + 'deg)');
+
     }
   });
 
   socket.on("handchange", function(data){
-    var hand = document.getElementById("hand");
+    var hand = document.getElementById("cardwrap");
     hand.removeChild(document.getElementById(data.card));
     var handlength = hand.childElementCount;
     for(var i=0; i < handlength; i++){
@@ -157,7 +194,7 @@
 
   socket.on("eerst kaarten pakken", function(data){
     var turnstatus= document.getElementById("turnstatus");
-    if(localStorage.getItem("turn") == '1'){
+    if(data.turn[go] =="1"){
     setTimeout(function(){
       turnstatus.innerHTML = "Je bent aan de beurt";
     }, 2000);
@@ -180,18 +217,22 @@
     haviwon();
   });
 
-  socket.on('wrong', function(){
+  socket.on('wrong', function(data){
     var turnstatus= document.getElementById("turnstatus");
-    if(localStorage.getItem("turn") == '1'){
+    socket.emit("getTurnValue");
     setTimeout(function(){
-      turnstatus.innerHTML = "Je bent aan de beurt";
-    }, 2000);
-    }
-    else{
+      if(localStorage.getItem("turn") == "1"){
       setTimeout(function(){
-        turnstatus.innerHTML = "Wacht op je beurt";
-      }, 2000);
-    }
+        turnstatus.innerHTML = "Je bent aan de beurt";
+      }, 1000);
+      }
+      else{
+        setTimeout(function(){
+          turnstatus.innerHTML = "Wacht op je beurt";
+        }, 1000);
+      }
+    },1000);
+
     turnstatus.innerHTML = "Deze kaart kan niet op de stapel";
   });
 
@@ -212,6 +253,10 @@
     console.log("resume");
   })
 
+  socket.on("getTurnValue", function(data){
+    localStorage.setItem("turn", data.turn[go]);
+  })
+
   socket.on('notyou', function(turn){
     console.log("NOTYOU");
     var turnstatus = document.getElementById("turnstatus");
@@ -223,9 +268,20 @@
 
 //};
   skip = function(){
+
+    socket.emit("getTurnValue");
     var turnstatus= document.getElementById("turnstatus");
     setTimeout(function(){
-      turnstatus.innerHTML = "Wacht op je beurt";
+      if(localStorage.getItem("turn") == '1'){
+      setTimeout(function(){
+        turnstatus.innerHTML = "Je bent aan de beurt";
+      }, 2000);
+      }
+      else{
+        setTimeout(function(){
+          turnstatus.innerHTML = "Wacht op je beurt";
+        }, 2000);
+      }
     }, 2000);
     turnstatus.innerHTML = "Je wordt overgeslagen";
   };
@@ -248,6 +304,7 @@
     socket.emit('ready', {
       status: 1
     });
+
   };
 
   Status = function(){
@@ -257,8 +314,10 @@
     });
   };
 
-  PassTurn = function(){
+  PassTurn = function(data){
     console.log("passturn");
+
+    socket.emit("getTurnValue");
     gekocht = localStorage.getItem("gekocht");
     if(gekocht == true){
       console.log('PASSING TURN YEAH');
@@ -283,11 +342,13 @@
   };
 
   haviwon = function(){
-    var hand = document.getElementById("hand");
+    var hand = document.getElementById("cardwrap");
     var sessionid = localStorage.getItem("sessionid");
+    console.log("haviwon boys")
     console.log("HAND:    ", hand.childElementCount);
     console.log("SESSIONID:    ", sessionid);
     if (hand.childElementCount == 0) {
+      console.log("iwon boys")
       socket.emit("iwon", {
         winner: sessionid
       });
@@ -296,10 +357,11 @@
 
   Kopen = function(){
     console.log("kaarten kopen boi");
-    if(localStorage.getItem("turn") == '1'){
-      socket.emit("kaartkopen");
-      localStorage.setItem("gekocht", '1');
-    }
+    socket.emit("getTurnValue");
+    if(localStorage.getItem("turn") == '1'){        //DIT WEGHALEN OM 1 KAART MAX TE KOPEN
+      socket.emit("kaartkopen");                    //
+      localStorage.setItem("gekocht", '1');         //
+    }                                               //ONDERSTAANDE UNCOMMENTEN VOOR FIX
     // if(localStorage.getItem("turn") == '1' && localStorage.getItem("gekocht") != '1'){
     //   socket.emit("kaartkopen");
     //   localStorage.setItem("gekocht", '1');
@@ -321,24 +383,28 @@
   };
 
   Hearts = function(){
+    console.log("kaas hearts")
     socket.emit("Hearts");
     document.getElementById("boerkeuze").style.display = "none";
     document.getElementById("boerkeuze").style.zIndex = "-10";
   };
 
     Diamonds = function(){
+      console.log("kaas diamonds")
       socket.emit("Diamonds");
       document.getElementById("boerkeuze").style.display = "none";
       document.getElementById("boerkeuze").style.zIndex = "-10";
     };
 
       Spades = function(){
+        console.log("kaas spades")
         socket.emit("Spades");
         document.getElementById("boerkeuze").style.display = "none";
         document.getElementById("boerkeuze").style.zIndex = "-10";
       };
 
         Clubs = function(){
+          console.log("kaas clubs")
           socket.emit("Clubs");
           document.getElementById("boerkeuze").style.display = "none";
           document.getElementById("boerkeuze").style.zIndex = "-10";
@@ -371,5 +437,6 @@
   // }
 
 </script>
+
 </body>
 </html>

@@ -4,6 +4,7 @@
 
 console.log("hello world");
 var express = require('express');
+var bodyParser = require('body-parser')
 if (typeof localStorage === "undefined" || localStorage === null) {
   var LocalStorage = require('node-localstorage').LocalStorage;
   localStorage = new LocalStorage('./scratch');
@@ -16,7 +17,38 @@ var io = require('socket.io')(serv);
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/client/index.html');
 });
+app.get('/host', function(req, res) {
+  //res.send('hello  world');
+  res.sendFile(__dirname + '/client/host.html');
+});
 app.use('/client', express.static(__dirname + '/client'));
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+
+app.use(bodyParser.urlencoded({
+   extended: false
+}));
+
+app.use(bodyParser.json());
+
+app.get('/rules', function(req, res){
+  res.render('form');// if jade
+  // You should use one of line depending on type of frontend you are with
+  res.sendFile(__dirname + '/host.html'); //if html file is root directory
+  //res.sendFile("index.html"); //if html file is within public directory
+});
+
+app.post('/',function(req,res){
+   var Heer = req.body.Heer;
+   var Zeven = req.body.Zeven;
+   console.log(Heer, "   eeenn   ", Zeven);
+   res.send(htmlData);
+   console.log(htmlData);
+});
+
+//////////////////////////////////////////////////////////////////////////////
 
 serv.listen(2000);
 // var topstack = '10H';
@@ -89,6 +121,8 @@ localStorage.setItem("currentturn", "undefined");
   });
 
   socket.on('ready', function(data){
+
+    console.log(localStorage.getItem("ending"));
     player.ready = 1;
     if(AllPlayersReady() == true){
       var pile = schudkaarten();
@@ -102,6 +136,7 @@ localStorage.setItem("currentturn", "undefined");
   })
 
   socket.on("passturn", function(){
+    if(localStorage.getItem("ending") != "true"){
     console.log("CURRENT TURN:   " + currentturn);
     currentturn = localStorage.getItem("currentturn");
     currentturn = nextplayer(currentturn);
@@ -109,15 +144,20 @@ localStorage.setItem("currentturn", "undefined");
 
       console.log("CURRENT TURN:   " + currentturn);
     localStorage.setItem("currentturn",  String(currentturn));
-  })
+  }});
 
-
+  socket.on("getTurnValue", function(){
+    socket.emit("returnTurnValue", {
+      turn: PLAYER_LIST[socket.id]
+    });
+  });
 
   socket.on('status', function(data){
     console.log('ready status = ' + player.ready);
   })
 
   socket.on("kaartkopen", function(){
+    if(localStorage.getItem("ending") != "true"){
     pot = GAME_LIST["pot"]
     console.log("dit is dus de pot", pot);
 
@@ -145,7 +185,7 @@ localStorage.setItem("currentturn", "undefined");
       GAME_LIST[1]["forcetake"] = 0;
     }
 
-  });
+  }});
 
   socket.on("Hearts", function(){
     topstack = GAME_LIST[1].topstapel;
@@ -198,6 +238,7 @@ localStorage.setItem("currentturn", "undefined");
 
 
   socket.on('iwon', function(data){
+    console.log("initiate endgame")
     for(i in PLAYER_LIST){
       if(i == data.winner){
         console.log("WINNER:     ", i, "   and    ", data.winner);
@@ -208,9 +249,16 @@ localStorage.setItem("currentturn", "undefined");
         SOCKET_LIST[i].emit("loser");
       }
     }
+    localStorage.setItem("ending", "true");
+    console.log(localStorage.getItem("ending"));
   });
 
   socket.on('selectedcard', function(data){
+    console.log("selectedcard")
+
+    console.log(localStorage.getItem("ending"));
+    if(localStorage.getItem("ending") != "true"){
+      console.log("endgame not active")
     console.log(GAME_LIST)
     // if(localStorage.getItem("legstapel" != null)){
     //   var legstapel = localStorage.getItem("legstapel");
@@ -219,6 +267,7 @@ localStorage.setItem("currentturn", "undefined");
     //   var legstapel = [];
     // }
     if(GAME_LIST[1]["forcetake"] == 0){
+      console.log("no forcetake")
     var legstapel = GAME_LIST[1].legstapel;
     //console.log(PLAYER_LIST[socket.id].hand[data.card]);
     var infonext = dealnodeal(GAME_LIST[1].topstapel, PLAYER_LIST[id].hand[data.card]);
@@ -226,11 +275,14 @@ localStorage.setItem("currentturn", "undefined");
 
 
     if(infonext[3] == true){
+      console.log("acht is active")
       SOCKET_LIST[id].emit("skip");
       if(localStorage.getItem("currentturn") == "undefined"){
+        console.log("set currentturn for first player")
         currentturn = PLAYING_LIST[1];
       }
       else{
+        console.log("got currentturn localstorage")
         currentturn = localStorage.getItem("currentturn");
       }
       previousturn = currentturn;
@@ -238,11 +290,14 @@ localStorage.setItem("currentturn", "undefined");
       localStorage.setItem("currentturn",  String(currentturn));
     }
     if(infonext[2] == true){
+      console.log( "boer is active")
       SOCKET_LIST[id].emit('Boerchoice');
       io.emit('wacht');
     }
     if(infonext[0] == true && infonext[1] == true){
+      console.log("next is active en value is active")
       io.emit('right');
+      console.log("right emitted")
       if(localStorage.getItem("currentturn") == "undefined"){
         currentturn = PLAYING_LIST[1];
       }
@@ -253,10 +308,14 @@ localStorage.setItem("currentturn", "undefined");
       localStorage.setItem("currentturn",  String(currentturn));
     }
     else if (infonext[0] == true && infonext[1] == false) {
+      console.log("nog een keer aan de beurt")
       goAgain();
     }
     else{
-      io.emit('wrong');
+      console.log("wrong emitted")
+      io.emit('wrong', {
+        turn: PLAYER_LIST[socket.id]
+      });
     }
 
     if(infonext[0] == true){
@@ -270,6 +329,9 @@ localStorage.setItem("currentturn", "undefined");
       SOCKET_LIST[id].emit("handchange", {
         card: data.card
       })
+
+      hand = PLAYER_LIST[socket.id].hand                                                /////////HIEEERR
+      socket.emit("hand", hand);
     };
     //for(var i in SOCKET_LIST){
       //var socket = SOCKET_LIST[i];
@@ -287,13 +349,17 @@ localStorage.setItem("currentturn", "undefined");
     }
     else{
       SOCKET_LIST[id].emit("eerst kaarten pakken", {
-        amount: GAME_LIST[1]["forcetake"]
+        amount: GAME_LIST[1]["forcetake"],
+        turn: PLAYER_LIST[socket.id]
       })
     }
 
     console.log(GAME_LIST[1].legstapel);
     //};
-  });
+  }
+else{
+  console.log("ending active")
+}});
 });
 
 
@@ -401,6 +467,8 @@ AllPlayersReady = function(){
       return false;
     }
   }
+
+  console.log(localStorage.getItem("ending"));
   return true;
 }
 
@@ -418,6 +486,10 @@ deelkaarten = function(pile){
 }
 
 StartGame = function(){
+
+  console.log(localStorage.getItem("ending"));
+  console.log("setting win false")
+  localStorage.setItem("ending", "false")
   GAME_LIST[1] = Game();
   for(var i in PLAYER_LIST){
     var player = PLAYER_LIST[i];

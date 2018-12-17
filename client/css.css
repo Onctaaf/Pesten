@@ -52,6 +52,18 @@ img{
   align-content: center;
   margin-top: 200px;
   max-width: 1180px;
+  margin-left: 60px;
+}
+
+.card{
+  position: relative;
+  top: 0px;
+  transition: top ease 0.5s;
+  margin-left: -60px;
+}
+
+.card:hover{
+  top: -20px;
 }
 
 .buttons{
