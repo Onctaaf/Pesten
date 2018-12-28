@@ -6,11 +6,15 @@
 <link rel="stylesheet" type="text/css" href="/client/css.css">
 </head>
 <body>
-  <h1 id="turnstatus">TURN</h1>
+  <h1 id="turnstatus">turn</h1>
   <div id="controls" class="controlsection">
-  <button onclick="Readyup()" class="buttons" id="readyButton">Ready</button>
+  <!-- <button onclick="Readyup()" class="buttons" id="readyButton">Ready</button>
   <button onclick="Status()" class="buttons" id="statusButton">Status</button>
-  <button onclick="PassTurn()" class="buttons" id="passButton">Klaar</button>
+  <button onclick="PassTurn()" class="buttons" id="passButton">Klaar</button> -->
+  <div class="buttonsnew" id="readyButton" onclick="Readyup()"> Ready</div>
+  <div onclick="Status()" class="buttonsnew" id="statusButton">Status</div>
+  <div onclick="PassTurn()" class="buttonsnew" id="passButton">Klaar</div>
+  <span class="stretch"></span>
   </div>
   <div class="outer">
 <div id="mid">
@@ -125,7 +129,15 @@
       thiscard.setAttribute("name", i);
       thiscard.setAttribute("id", i);
     }
-
+    var handgrootte = document.getElementById("cardwrap").childElementCount;
+    console.log("HANDGROOTTE GOOOO:     ", handgrootte);
+    var sessionid = localStorage.getItem("sessionid");
+    if(handgrootte == 1){
+      console.log("EMITTING LAATSTE KAART")
+      socket.emit("laatsteKaart", {
+        sender: sessionid
+      });
+    }
       haviwon();
   });
 
@@ -150,6 +162,7 @@
         else{
           console.log("VERLOREN");
         }
+
       });
 
       socket.on("loser", function(){
@@ -214,8 +227,13 @@
   });
 
   socket.on('right', function(){
+
     haviwon();
   });
+
+  socket.on("lastcard", function(){
+    console.log("iemand heeft laatste kaart boi");
+  })
 
   socket.on('wrong', function(data){
     var turnstatus= document.getElementById("turnstatus");

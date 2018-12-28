@@ -1,13 +1,13 @@
 
 
 html{
-  font-family: sans-serif;
+  font-family: 'Avenir Next LT Pro Bold';
   width: 1180px;
   /* margin-left: 50%; */
   margin-left: auto;
   margin-right: auto;
-  background-color: #444444;
-  color: #DDDDDD;
+  background-color: #AFC9C9;
+  color: #330000;
 }
 
 #pot{
@@ -17,12 +17,29 @@ html{
 #game{
 }
 
+#cardwrap{
+  margin-left: 1.5%;
+  position: fixed;
+      top: 550px; /* or whatever top you need */
+      left: 50%;
+      width: auto;
+      -webkit-transform: translateX(-50%);
+      -moz-transform: translateX(-50%);
+      -ms-transform: translateX(-50%);
+      -o-transform: translateX(-50%);
+      transform: translateX(-50%);
+  /* margin-left: 29%; */
+}
+
 .controlsection{
   position: relative;
   margin-top: 13%;
   margin-left: auto;
   margin-right: auto;
   width: 100%;
+  text-align: justify;
+  -ms-text-justify: disctribute-all-lines;
+  text-justify: distribute-all-lines;
 }
 
 img{
@@ -75,6 +92,39 @@ img{
   margin-right: 1px;
 }
 
+.buttonsnew{
+  cursor: pointer;
+  vertical-align: top;
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  line-height: 50px !important;
+  margin-left: 2px;
+  margin-right: 1px;
+  position: relative;
+  width: 180px;
+  height: 50px;
+  border: none;
+  background-color: #153243;
+  border-bottom-style: solid;
+  border-width: 3px;
+  border-color: #FFFFFF;
+  border-radius: 10px;
+  margin-top: 100px;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: bold;
+  box-shadow: 1px 1px 11px 0px rgba(0,0,0,0.5);
+}
+
+.stretch{
+  width: 100%;
+display: inline-block;
+font-size: 0;
+line-height: 0
+}
+
 .outer{
   margin-top: 2%;
   position: absolute;
@@ -86,7 +136,9 @@ img{
   position: absolute;
   text-align: center;
   width: 1180px;
+  font-size: 3em;
   margin-top: -5%;
+  font-weight: lighter;
 }
 
 .boerimg{
@@ -129,4 +181,167 @@ img{
   text-align: left;
   margin-top: 30%;
   margin-bottom: auto;
+}
+
+@media only screen and (max-width: 1300px) {
+  html{
+    width: 100%;
+  }
+
+  #turnstatus{
+    width: 100%;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Regular';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Regular'), url('css/AvenirNextLTPro-Regular.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Condensed';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Condensed'), url('css/AvenirNextLTPro-Cn.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Condensed Italic';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Condensed Italic'), url('css/AvenirNextLTPro-CnIt.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Italic';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Italic'), url('css/AvenirNextLTPro-It.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Ultra Light Condensed';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Ultra Light Condensed'), url('css/AvenirNextLTPro-UltLtCn.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Ultra Light Condensed Italic';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Ultra Light Condensed Italic'), url('css/AvenirNextLTPro-UltLtCnIt.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Medium Condensed';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Medium Condensed'), url('css/AvenirNextLTPro-MediumCn.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Medium Condensed Italic';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Medium Condensed Italic'), url('css/AvenirNextLTPro-MediumCnIt.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Demi';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Demi'), url('css/AvenirNextLTPro-Demi.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Demi Condensed';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Demi Condensed'), url('css/AvenirNextLTPro-DemiCn.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Demi Condensed Italic';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Demi Condensed Italic'), url('css/AvenirNextLTPro-DemiCnIt.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Demi Italic';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Demi Italic'), url('css/AvenirNextLTPro-DemiIt.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Bold';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Bold'), url('css/AvenirNextLTPro-Bold.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Bold Condensed';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Bold Condensed'), url('css/AvenirNextLTPro-BoldCn.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Bold Condensed Italic';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Bold Condensed Italic'), url('css/AvenirNextLTPro-BoldCnIt.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Heavy Condensed';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Heavy Condensed'), url('css/AvenirNextLTPro-HeavyCn.woff') format('woff');
+}
+
+
+@font-face {
+font-family: 'Avenir Next LT Pro Heavy Condensed Italic';
+font-style: normal;
+font-weight: normal;
+src: local('Avenir Next LT Pro Heavy Condensed Italic'), url('css/AvenirNextLTPro-HeavyCnIt.woff') format('woff');
 }

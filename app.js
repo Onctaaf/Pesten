@@ -1,7 +1,6 @@
 //design
 //BOER
 
-
 console.log("hello world");
 var express = require('express');
 var bodyParser = require('body-parser')
@@ -14,6 +13,9 @@ var serv = require('http').Server(app);
 var io = require('socket.io')(serv);
 //var legstapel = []
 
+localStorage.setItem("rulesset", 0);
+
+localStorage.setItem("progress", 0);
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/client/index.html');
 });
@@ -38,6 +40,13 @@ app.get('/rules', function(req, res){
   // You should use one of line depending on type of frontend you are with
   res.sendFile(__dirname + '/host.html'); //if html file is root directory
   //res.sendFile("index.html"); //if html file is within public directory
+});
+
+app.post('/regels', (request, response) => {
+  const postBody = request.body;
+  console.log(postBody);
+  setrules(postBody["Heer"], postBody["Zeven"], postBody["2"], postBody["Joker"], postBody["boer"])
+  return response.redirect('/');
 });
 
 app.post('/',function(req,res){
@@ -83,7 +92,8 @@ var io = require('socket.io') (serv, {});
 
 //als er een nieuwe speler joint wordt deze functie aangeroepen.
 io.on('connect', function(socket){
-localStorage.setItem("currentturn", "undefined");
+  if(localStorage.getItem("progress") == 0){
+  localStorage.setItem("currentturn", "undefined");
   var id = socket.id;
   var player = Player(socket.id);
   console.log("socket:   " , socket.id);
@@ -93,10 +103,7 @@ localStorage.setItem("currentturn", "undefined");
   //   player.id = Object.keys(PLAYER_LIST).length + 1;//HIER IS DE ID GEKOZEN>>>>>
   // }
   SOCKET_LIST[socket.id] = socket;
-
-
   PLAYER_LIST[socket.id] = player;
-
   if(Object.keys(PLAYING_LIST).length == null){
   PLAYING_LIST[1] = id;//HIER IS DE ID GEKOZEN>>>>>
   }else{
@@ -237,6 +244,20 @@ localStorage.setItem("currentturn", "undefined");
   });
 
 
+  socket.on('laatsteKaart', function(data){
+    console.log("initiate lastcard")
+    for(i in PLAYER_LIST){
+      if(i == data.sender){
+        //console.log("WINNER:     ", i, "   and    ", data.winner);
+        //SOCKET_LIST[i].emit("last");
+      }
+      else{
+        //console.log("LOSER:     ", i, "   and    ", data.winner);
+        SOCKET_LIST[i].emit("lastcard");
+      }
+    }
+  });
+
   socket.on('iwon', function(data){
     console.log("initiate endgame")
     for(i in PLAYER_LIST){
@@ -360,6 +381,7 @@ localStorage.setItem("currentturn", "undefined");
 else{
   console.log("ending active")
 }});
+}
 });
 
 
@@ -429,10 +451,10 @@ dealnodeal = function(topstack, chosen){
   //}
 
   if (chosen == "joker") {
-    forcetake(5);
+    forcetake(localStorage.getItem("jokerRule"));
     value = true;
   }else if(chosensplit[0] == "2"){
-    forcetake(2);
+    forcetake(localStorage.getItem("twoRule"));
   }
   if(topsplit[1] == chosensplit[1]){
     value = true;
@@ -444,19 +466,36 @@ dealnodeal = function(topstack, chosen){
 
   if (value == true) {
     if(chosensplit[0] == "7"){
-      next = false;
+      if(localStorage.getItem("zevenRule") == 1){
+        next = false;
+      }
+      else{
+        next = true;
+      }
     }
     else if (chosensplit[0] == "8") {
       next = true;
       acht = true;
     }
     else if (chosensplit[0] == "k") {
-      next = false;
+      if(localStorage.getItem("heerRule") == 1){
+        next = false;
+      }
+      else{
+        next = true;
+      }
     }
     else if (chosensplit[0] == "b") {
       boer = true;
     }
   }
+
+  if(chosensplit[0] == "b" && localStorage.getItem("boerRule") == 1){
+      value = true;
+      next = true;
+      boer = true;
+  }
+
   return t = [value, next, boer, acht];
 };
 
@@ -486,10 +525,13 @@ deelkaarten = function(pile){
 }
 
 StartGame = function(){
-
+  if(localStorage.getItem("rulesset") == 0){
+    setrules();
+  }
+  localStorage.setItem("progress", 1);
   console.log(localStorage.getItem("ending"));
   console.log("setting win false")
-  localStorage.setItem("ending", "false")
+  localStorage.setItem("ending", "false");
   GAME_LIST[1] = Game();
   for(var i in PLAYER_LIST){
     var player = PLAYER_LIST[i];
@@ -608,4 +650,16 @@ finishgame = function(player){
       io.emit("finished", {
         winner: player.id
       });
+}
+
+setrules = function(Heer = 1, Zeven = 1, Two = 2, Joker = 5, Boer = 1){
+  if(localStorage.getItem("progress") == 0){
+    console.log("SETTING RULES");
+    localStorage.setItem("heerRule", Heer);
+    localStorage.setItem("zevenRule", Zeven);
+    localStorage.setItem("twoRule", Two);
+    localStorage.setItem("jokerRule", Joker);
+    localStorage.setItem("boerRule", Boer);
+    localStorage.setItem("rulesset", 1);
+  }
 }
