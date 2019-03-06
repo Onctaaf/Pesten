@@ -7,6 +7,12 @@
 </head>
 <body>
   <h1 id="turnstatus">turn</h1>
+  <div id="laatstekaart">
+    <div id="textwindow">
+      <p>Een speler heeft laatste kaart!</p>
+    </div>
+  </div>
+
   <div id="controls" class="controlsection">
   <!-- <button onclick="Readyup()" class="buttons" id="readyButton">Ready</button>
   <button onclick="Status()" class="buttons" id="statusButton">Status</button>
@@ -119,6 +125,11 @@
 
     }
   });
+
+  // socket.on("CheckIfActive"){
+  //   socket.emit("connect2");
+  // }
+
 
   socket.on("handchange", function(data){
     var hand = document.getElementById("cardwrap");
@@ -233,6 +244,11 @@
 
   socket.on("lastcard", function(){
     console.log("iemand heeft laatste kaart boi");
+    ///////////////////////////////////////////////////////////////////LAATSTE KAART HIER
+    document.getElementById("textwindow").style.opacity = 0.7;
+    setTimeout(function(){
+      document.getElementById("textwindow").style.opacity = 0;
+    }, 3000);
   })
 
   socket.on('wrong', function(data){

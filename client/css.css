@@ -7,7 +7,7 @@ html{
   margin-left: auto;
   margin-right: auto;
   background-color: #AFC9C9;
-  color: #330000;
+  color: #242424;
 }
 
 #pot{
@@ -16,6 +16,23 @@ html{
 
 #game{
 }
+
+#laatstekaart{
+  position: absolute;
+  margin-top: -5%;
+  margin-left: 5%;
+}
+
+#textwindow{
+  background-color: rgba(255, 255, 255);
+  border-radius: 10px;
+  width: 200px;
+  padding: 1px 15px 1px 15px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
 
 #cardwrap{
   margin-left: 1.5%;
@@ -169,10 +186,10 @@ line-height: 0
   z-index: -1;
 }
 
-.radio{
+/* .radio{
   margin-left: auto;
   margin-right: auto;
-}
+} */
 
 #middenkeuze{
   margin-left: auto;
@@ -195,14 +212,72 @@ line-height: 0
 
 
 
+/* CUSTOM RADIO BUTTONS */
+[type="radio"]:checked,
+[type="radio"]:not(:checked) {
+    position: absolute;
+    left: -9999px;
+}
+[type="radio"]:checked + label,
+[type="radio"]:not(:checked) + label
+{
+    position: relative;
+    padding-left: 28px;
+    cursor: pointer;
+    line-height: 20px;
+    display: inline-block;
+    /* color: #666; */
+}
+[type="radio"]:checked + label:before,
+[type="radio"]:not(:checked) + label:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #ddd;
+    border-radius: 100%;
+    background: #fff;
+}
+[type="radio"]:checked + label:after,
+[type="radio"]:not(:checked) + label:after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background: #153243;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    border-radius: 100%;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+[type="radio"]:not(:checked) + label:after {
+    opacity: 0;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+}
+[type="radio"]:checked + label:after {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}
+
+label{
+  left: 5px;
+  top: -15px;
+}
+
+.boerlabel{
+  top: 0px !important;
+}
 
 
-
-
-
-
-
-
+#submitButton{
+  top: -50px;
+}
+/* CUSTOM RADIO BUTTONS */
 
 
 

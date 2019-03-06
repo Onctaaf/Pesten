@@ -6,45 +6,55 @@
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+    <link rel="stylesheet" type="text/css" href="/client/css.css">
+
   </head>
   <body>
     <div>
+
+
+
+
+
+
       <form action="/regels" method="POST">
 
       <h1>Regels kiezen</h1>
       <table>
         <tr><th>Pestkaarten</th></tr>
         <tr><th>nog een keer</th><th>&emsp;</th><th>Ja</th><th>Nee</th></tr>
-        <tr><td style="text-align: center;">Heer</td><td></td><td><input type="radio" name="Heer" value="1" checked></td><td><input type="radio" value="0" name="Heer"></td></tr>
-        <tr><td style="text-align: center;">Zeven</td><td></td><td><input type="radio" name="Zeven" value="1" checked></td><td><input type="radio" value="0" name="Zeven"></td></tr>
+        <tr><td style="text-align: center;">Heer</td><td></td><td><input type="radio" id="htest1" name="Heer" value="1" checked><label for="htest1"></label></td><td><input type="radio" id="htest2" name="Heer" value="0" >
+          <label for="htest2"></label></td></tr>
+        <tr><td style="text-align: center;">Zeven</td><td></td><td><input type="radio" id="ztest1" name="Zeven" value="1" checked><label for="ztest1"></label></td><td><input type="radio" id="ztest2" name="Zeven" value="0" >
+          <label for="ztest2"></label></td></tr>
         <tr><th>hoeveel kaarten pakken</th><th>&emsp;</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr>
         <tr><td style="text-align: center;">2</td><td></td>
-          <td><input type="radio" name="2" value="1"></td>
-          <td><input type="radio" name="2" checked value="2"></td>
-          <td><input type="radio" name="2" value="3"></td>
-          <td><input type="radio" name="2" value="4"></td>
-          <td><input type="radio" name="2" value="5"></td>
-          <td><input type="radio" name="2" value="6"></td>
-          <td><input type="radio" name="2" value="7"></td>
+          <td><input type="radio" id="test1" name="2" value="1" checked><label for="test1"></label></td>
+          <td><input type="radio" id="test2" name="2" value="2" ><label for="test2"></label></td>
+          <td><input type="radio" id="test3" name="2" value="3" ><label for="test3"></label></td>
+          <td><input type="radio" id="test4" name="2" value="4" ><label for="test4"></label></td>
+          <td><input type="radio" id="test5" name="2" value="5" ><label for="test5"></label></td>
+          <td><input type="radio" id="test6" name="2" value="6" ><label for="test6"></label></td>
+          <td><input type="radio" id="test7" name="2" value="7" ><label for="test7"></label></td>
         </tr>
         <tr><td style="text-align: center;">Joker</td><td></td>
-          <td><input type="radio" name="Joker" value="1"></td>
-          <td><input type="radio" name="Joker" value="2"></td>
-          <td><input type="radio" name="Joker" value="3"></td>
-          <td><input type="radio" name="Joker" value="4"></td>
-          <td><input type="radio" name="Joker"checked  value="5"></td>
-          <td><input type="radio" name="Joker" value="6"></td>
-          <td><input type="radio" name="Joker" value="7"></td>
+          <td><input type="radio" id="jtest1" name="Joker" value="1" checked><label for="jtest1"></label></td>
+          <td><input type="radio" id="jtest2" name="Joker" value="2" ><label for="jtest2"></label></td>
+          <td><input type="radio" id="jtest3" name="Joker" value="3" ><label for="jtest3"></label></td>
+          <td><input type="radio" id="jtest4" name="Joker" value="4" ><label for="jtest4"></label></td>
+          <td><input type="radio" id="jtest5" name="Joker" value="5" ><label for="jtest5"></label></td>
+          <td><input type="radio" id="jtest6" name="Joker" value="6" ><label for="jtest6"></label></td>
+          <td><input type="radio" id="jtest7" name="Joker" value="7" ><label for="jtest7"></label></td>
         </tr>
       </table>
       <table>
         <tr><th>Algemene regels</th></tr>
         <tr>
-          <td>Boer</td> <td><input type="radio" name="boer" checked value="1"> mag op alles</td>
-          <td><input type="radio" name="boer" value="0"> mag alleen op eigen soort</td>
+          <td>Boer</td> <td><input type="radio" id="btest1" name="boer" value="1" checked><label class="boerlabel" for="btest1">mag op alles</label></td>
+          <td><input type="radio" id="btest2" name="boer" value="0"><label class="boerlabel" for="btest2">mag alleen op eigen soort</label></td>
         </tr>
       </table>
-      <button type="submit">Submit</button>
+      <div onclick="javascript:this.form.submit()" class="buttonsnew" id="submitButton">Submit</div>
       </form>
     </div>
   </body>
